@@ -1,0 +1,164 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="box">
+      
+      <div class="box-header">
+        <h3 class="box-title">Quality of Progress Reporting </h3>
+        <?php
+          if($report->status == 'Draft') 
+          {
+            print $this->tag->linkTo(
+              [
+                "reporting/report/submit/".$report->id, 
+                "<i class='fa fa-credit-card'></i> Submit Report", 
+                "class" => "btn btn-success pull-right"
+              ]
+            );
+          }             
+          else
+          {
+            print $this->tag->linkTo(
+              [
+                "reporting/report/open/".$report->id, 
+                "<i class='fa fa-credit-card'></i> Open Report", 
+                "class" => "btn btn-primary pull-right"
+              ]
+            );
+          }
+            
+        ?> 
+      </div><!-- /.box-header -->
+      
+      <div class="box-body">
+        <div ><h4> <b>REPORT:</b> <?php print $report->description; ?></h4> </div>
+        <div ><h4> <b>PROJECT:</b> <?php print "(".$project->projectID.") ". $project->ProjTitle; ?></h4> </div>
+        
+        <table class="table table-bordered">
+          
+          <?php
+
+              foreach($details as $detail)
+              {
+                print "<tr style='background-color:#ccc; font: #fff;'>";
+                print "<td style='width: 3%'></td>";
+                print "<td style='width: 28%'>".$detail->category->name."</td>";
+                print "<td style='width: 7%'>Score</td>";
+                print "<td style='width: 37%'>Comments</td>";
+                print "<td style='width: 17%'>Score Status</td>";
+                if($report->status == 'Draft')
+                  print "<td style='width: 8%'></td>";
+                print "</tr>";
+
+               
+                $num = 1.0;
+
+                foreach($detail->items as $row)
+                {
+                  $num += 0.1;
+
+                  print "<tr style='font-size:14px;'>";
+                  print "<td>".$num."</td>";
+                  print "<td>".$row->item->name."</td>";
+                  print "<td>".$row->score."</td>";
+                  print "<td><p>".$row->comments."</p></td>";
+                  print "<td>".$row->scoreStatus."</td>";                  
+                  if($report->status == 'Draft'){
+                    print "<td>";
+                    print "<button type='button' class='btn btn-primary btn-xs scoreButton' itemID='".$row->item->id."' scoreID='".$row->scoreID."'>";
+                    if($row->score != '')
+                      print "Edit";
+                    else
+                      print "Add";
+                    print "</button>";
+                    print "</td>";
+                  }
+                  print "</tr>";
+                }
+
+                print "<tr style='font-size:14px;'>";
+                print "<td></td>";
+                print "<td><b>".$detail->total->name."</b></td>";
+                print "<td><b>".$detail->total->score."</b></td>";
+                print "<td></td>";
+                print "<td></td>";
+                if($report->status == 'Draft')
+                  print "<td></td>";
+                print "</tr>";
+              }              
+
+          ?>
+          <tr style='background-color:#ccc; font: #fff;'>
+            <td></td>
+            <td><b>Overall Total Score</b></td>
+            <td><b><?=$totalScores; ?></b></td>
+            <td></td>
+            <td></td>
+            <?php
+              if($report->status == 'Draft')
+                print "<td></td>";
+            ?>
+          </tr>                 
+        </table>
+      </div><!-- /.box-body -->
+
+    </div><!-- /.box -->
+
+  </div>
+</div>
+
+
+<div class="modal fade custom-width" id="edit-scores-modal" style="width: 100%;" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Project Assessment Score</h4>
+      </div>
+      <div class="modal-body">
+
+        <div style="width:100%; height:400px;">
+          <iframe src="/pims2/home/views/monitoring.php?pid=<?=$project->projectID?>" 
+                  style="margin:0; width:100%; height:100%; border:1px #cccccc solid; overflow:hidden;">
+          </iframe>
+        </div>
+
+        <div><br/></div>
+
+        <div class="panel panel-primary">
+          <div class="panel-heading" id="more-info-heading"></div>
+          <div class="panel-body" id="more-info-body">
+            <form>
+          
+              <?php echo $form->render("itemIdInput"); ?>
+              <?php echo $form->render("scoreIdInput"); ?>
+
+                <div class="row">
+                <div class="col-xs-1">
+                  <label for="scoreInput">Score</label>;  
+                  <?php echo $form->render("score"); ?>  
+                </div>  
+                </div>  
+
+                <div class="row">
+                <div class="col-xs-10">
+                  <label for="commentsInput">Comments</label>;  
+                  <?php echo $form->render("comments"); ?>  
+                </div>
+                </div>
+
+                <br/>
+
+                <button id="submit-scores" type="submit" class="btn btn-primary">Save</button>             
+
+              </form>
+
+          </div>
+        </div>               
+
+      </div>
+      
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
